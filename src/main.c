@@ -48,7 +48,23 @@ bool MatchAge(void* data)
 
 void test_list(void)
 {
+    // ENSURE NOTHING BREAKS WHEN LIST IS NULL.
+    List* bork = List_Construct(NULL);
+    List_Destruct(NULL);
+    List_GetSize(NULL);
+    List_Delete(NULL, 0);
+    List_DeleteMatch(NULL, NULL);
+    List_PushFront(NULL, NULL);
+    List_InspectFront(NULL);
+    List_MapForward(NULL, NULL);
+    List_PopFront(NULL);
+    List_InspectBack(NULL);
+    List_PopBack(NULL);
+    List_MapBackward(NULL, NULL);
+    List_Destruct(&bork); // CLEANUP.
+    // GENERAL TESTS.
     List* list = List_Construct(Person_Destruct);
+    assert(List_GetSize(list) == 0);
     const Person persons[] = {
         {  24, 180 },
         {  23, 170 },

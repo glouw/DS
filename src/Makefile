@@ -13,6 +13,7 @@ $(BIN): $(OBJS) $(DEPS)
 	$(CC) $(FLAGS) $(OBJS) $(LIBS) -o $(BIN)
 	@ echo ">> RUNNING TESTS"
 	@ ./$(BIN)
+	@ echo ">> SUCCESS"
 
 %.o : %.c %.d Makefile
 	$(CC) $(FLAGS) -MMD -MP -MT $@ -MF $*.d -c $<
@@ -21,7 +22,6 @@ $(BIN): $(OBJS) $(DEPS)
 
 %.d : ;
 
-.PHONY clean:
 clean:
 	rm -f $(BIN)
 	rm -f $(OBJS)
