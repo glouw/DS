@@ -5,10 +5,10 @@ CC = gcc
 CFLAGS = -Og -Wall -Wextra -Wpedantic -fsanitize=undefined -fsanitize=address
 
 test: $(OBJS)
-	@ for test in $(OBJS); do echo "TEST $$test"; ./$$test; done
+	@ for test in $(OBJS); do echo "TEST $$test"; time ./$$test; done
 	@ date >> test
 
-List: List.[ch] Makefile
+List: List.[ch] Util.h Makefile
 	@ echo CC $<
 	@ $(CC) $(CFLAGS) $< -o $@
 
