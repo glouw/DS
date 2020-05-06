@@ -2,7 +2,7 @@ BIN = test
 
 CC = gcc
 
-SRCS = main.c List.c Queue.c
+SRCS = main.c List.c Queue.c Stack.c
 
 OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
