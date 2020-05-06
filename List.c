@@ -1,81 +1,161 @@
 #include "List.h"
-#include "Util.h"
 
-#include <stdio.h>
-#include <assert.h>
+#include <stdlib.h>
 
-typedef struct
+typedef struct ListNode ListNode;
+
+struct ListNode
 {
-    int age;
-    int height;
-}
-Person;
+    void* data;
+    struct ListNode* next;
+    struct ListNode* prev;
+};
 
-Person* Person_Construct(const int age, const int height)
+struct List
 {
-    Person* person = calloc(1, sizeof(*person));
-    person->age = age;
-    person->height = height;
-    return person;
-}
+    struct ListNode* head;
+    struct ListNode* tail;
+    void (*destruct)(void* data);
+    int size;
+};
 
-void Person_Print(void* data)
+static ListNode* ListNode_Construct(void* data)
 {
-    Person* person = (Person*) data;
-    printf("%d %d\n", person->age, person->height);
-}
-
-void Person_Destruct(void* data)
-{
-    Person* person = (Person*) data;
-    free(person);
+    ListNode* node = calloc(1, sizeof(*node));
+    node->data = data;
+    return node;
 }
 
-void test_print(List* list)
+List* List_Construct(void (*destruct)(void*))
 {
-    puts("");
-    List_MapForward(list, Person_Print);
-    puts("");
-    List_MapBackward(list, Person_Print);
-    puts("");
+    List* list = calloc(1, sizeof(*list));
+    list->destruct = destruct;
+    return list;
 }
 
-bool Match(void* data)
+void List_Destruct(List** list)
 {
-    Person* person = (Person*) data;
-    return person->age == 99;
+    ListNode* node = (*list)->head;
+    while(node)
+    {
+        ListNode* next = node->next;
+        if((*list)->destruct)
+            (*list)->destruct(node->data);
+        free(node);
+        node = next;
+    }
+    free(*list);
+    *list = NULL;
 }
 
-void test(void)
+int List_GetSize(List* list)
 {
-    List list = List_Construct(Person_Destruct);
-    const Person persons[] = {
-        { 24, 180 },
-        { 23, 170 },
-        { 22, 160 },
-        { 21, 150 },
-        { 20, 140 },
-        { 99, 140 },
-        { 99, 141 },
-        { 99, 142 },
-        { 99, 143 },
-        { 99, 144 },
-    };
-    FOREACH(Person, p, persons)
-        List_PushFront(&list, ListNode_Construct(Person_Construct(p.age, p.height)));
-    END
-    test_print(&list);
-    void* front = List_PopFront(&list);
-    void* back = List_PopBack(&list);
-    Person_Destruct(front);
-    Person_Destruct(back);
-    List_Delete(&list, 2);
-    List_DeleteMatch(&list, Match);
-    List_MapForward(&list, Person_Print);
-    List_Destruct(&list);
+    return list->size;
 }
 
-int main(void)
+static void List_Remove(List* list, ListNode* node)
 {
-    test();
+    ListNode* prev = node->prev;
+    ListNode* next = node->next;
+    if(list->destruct)
+        list->destruct(node->data);
+    free(node);
+    list->size -= 1;
+    if(prev)
+        prev->next = next;
+    if(next)
+        next->prev = prev;
+    if(node == list->head)
+        list->head = next;
+    if(node == list->tail)
+        list->tail = prev;
+}
+
+void List_Delete(List* list, const int index)
+{
+    if(index < list->size)
+    {
+        int i = 0;
+        for(ListNode* node = list->head; node; node = node->next)
+        {
+            if(index == i)
+            {
+                List_Remove(list, node);
+                return;
+            }
+            i += 1;
+        }
+    }
+}
+
+void List_DeleteMatch(List* list, bool (*match)(void*))
+{
+    ListNode* node = list->head;
+    while(node)
+    {
+        ListNode* next = node->next;
+        if(match(node->data))
+            List_Remove(list, node);
+        node = next;
+    }
+}
+
+void List_PushFront(List* list, void* data)
+{
+    ListNode* node = ListNode_Construct(data);
+    node->next = list->head;
+    list->head = node;
+    list->size += 1;
+    if(list->size == 1)
+        list->tail = list->head;
+    if(list->head->next)
+        list->head->next->prev = list->head;
+}
+
+void* List_InspectFront(List* list)
+{
+    return list->head->data;
+}
+
+void List_MapForward(List* list, void (*func)(void*))
+{
+    for(ListNode* node = list->head; node; node = node->next)
+        func(node->data);
+}
+
+void* List_PopFront(List* list)
+{
+    void* data = List_InspectFront(list);
+    ListNode* next = list->head->next;
+    free(list->head);
+    list->head = next;
+    list->head->prev = NULL;
+    list->size -= 1;
+    if(list->size == 0)
+        list->tail = NULL;
+    return data;
+}
+
+void* List_InspectBack(List* list)
+{
+    return list->tail->data;
+}
+
+void* List_PopBack(List* list)
+{
+    void* data = List_InspectBack(list);
+    ListNode* prev = list->tail->prev;
+    free(list->tail);
+    list->tail = prev;
+    list->tail->next = NULL;
+    list->size -= 1;
+    if(list->size == 0)
+        list->head = NULL;
+    return data;
+}
+
+void List_MapBackward(List* list, void (*func)(void*))
+{
+    for(ListNode* node = list->tail; node; node = node->prev)
+        func(node->data);
 }

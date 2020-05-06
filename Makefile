@@ -1,16 +1,28 @@
-OBJS = List
+BIN = test
 
 CC = gcc
 
-CFLAGS = -Og -Wall -Wextra -Wpedantic -fsanitize=undefined -fsanitize=address
+SRCS = main.c List.c Queue.c
 
-test: $(OBJS)
-	@ for test in $(OBJS); do echo "TEST $$test"; time ./$$test; done
-	@ date >> test
+OBJS = $(SRCS:.c=.o)
+DEPS = $(SRCS:.c=.d)
 
-List: List.[ch] Util.h Makefile
-	@ echo CC $<
-	@ $(CC) $(CFLAGS) $< -o $@
+FLAGS = -O3 -march=native -flto -Wall -Wextra -Wshadow -Wpedantic -std=c11 -fsanitize=address -fsanitize=undefined
 
+$(BIN): $(OBJS) $(DEPS)
+	$(CC) $(FLAGS) $(OBJS) $(LIBS) -o $(BIN)
+	@ echo ">> RUNNING TESTS"
+	@ ./$(BIN)
+
+%.o : %.c %.d Makefile
+	$(CC) $(FLAGS) -MMD -MP -MT $@ -MF $*.d -c $<
+
+-include *.d
+
+%.d : ;
+
+.PHONY clean:
 clean:
+	rm -f $(BIN)
 	rm -f $(OBJS)
+	rm -f $(DEPS)
