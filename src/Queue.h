@@ -2,7 +2,7 @@
 
 typedef List Queue;
 
-Queue* Queue_Construct(void (*destruct)(void*));
+Queue* Queue_Construct(void (*destruct)(void*), bool (*match)(void*, void*));
 
 void Queue_Destruct(Queue**);
 

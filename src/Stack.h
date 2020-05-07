@@ -2,7 +2,7 @@
 
 typedef List Stack;
 
-Stack* Stack_Construct(void (*destruct)(void*));
+Stack* Stack_Construct(void (*destruct)(void*), bool (*match)(void*, void*));
 
 void Stack_Destruct(Stack**);
 

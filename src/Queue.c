@@ -1,8 +1,8 @@
 #include "Queue.h"
 
-Queue* Queue_Construct(void (*destruct)(void*))
+Queue* Queue_Construct(void (*destruct)(void*), bool (*match)(void*, void*))
 {
-    return List_Construct(destruct);
+    return List_Construct(destruct, match);
 }
 
 void Queue_Destruct(Queue** queue)

@@ -1,8 +1,8 @@
 #include "Stack.h"
 
-Stack* Stack_Construct(void (*destruct)(void*))
+Stack* Stack_Construct(void (*destruct)(void*), bool (*match)(void*, void*))
 {
-    return List_Construct(destruct);
+    return List_Construct(destruct, match);
 }
 
 void Stack_Destruct(Stack** stack)
