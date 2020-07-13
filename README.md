@@ -3,15 +3,3 @@
 Contains a handful of popular data structures implemented in C99.
 
 The data structures and algorithms implemented were taken from Mastering Algorithms with C by Kyle Loudon.
-
-Implemented so far:
-
-```
-DE List -+
-         |
-         +- Queue
-         |
-         +- Stack
-         |
-         +- Set
-```
