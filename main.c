@@ -313,13 +313,8 @@ void Test_Dict(void)
     Dict_Free(&dict);
 }
 
-int main(int argc, char* argv[])
+int main(void)
 {
-    if(argc == 2)
-    {
-        size_t size = atoi(argv[1]);
-        Test_Performance(size);
-    }
     Test_List();
     Test_Dict();
     return 0;
